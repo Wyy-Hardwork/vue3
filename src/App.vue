@@ -1,7 +1,55 @@
 <script setup lang="ts">
+import { ref,reactive,watch,watchEffect,onMounted,provide,readonly } from "vue";
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+
+let a = ref({a:10})
+console.log(a);
+
+let b = reactive({a:11})
+console.log(b);
+
+let data = reactive({
+  arr:[1,2,3],
+  str:'test',
+})
+
+function ck() {
+  data.arr[1] = 0
+}
+
+watch(()=>data,(a,b)=>{
+  console.log(a);
+  console.log(b);
+},{deep:true})
+
+console.log(a);
+console.log(b);
+
+watchEffect(()=>{
+  console.log('watchEffect执行了,发生了什么?'+data);
+})
+
+function happy(){
+  return 'happy cat'
+}
+
+let testProvide = reactive({
+  a:'youGotIt'
+})
+
+onMounted(()=>{
+  console.log('你好');
+  provide('cool',testProvide)
+  console.log('provide已经传出');
+  
+})
+
+let read = readonly([9])
+console.log(read);
+
 </script>
+
 
 <template>
   <header>
@@ -15,12 +63,23 @@ import HelloWorld from './components/HelloWorld.vue'
         <RouterLink to="/about">About</RouterLink>
       </nav>
     </div>
+    <div class="boy" @click="ck">
+      {{ a }}
+    </div>
+
+    <div @click="ck">{{ data.arr }}</div>
+    <div @click="ck">{{ data.str }}</div>
+    <div>{{ happy() }}</div>
   </header>
 
   <RouterView />
 </template>
 
 <style scoped>
+.boy{
+  height: 30%;
+}
+
 header {
   line-height: 1.5;
   max-height: 100vh;
