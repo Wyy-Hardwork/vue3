@@ -1,14 +1,9 @@
 <template>
-    <div>
-
-    </div>
+  <div>你好</div>
 </template>
 
 <script setup>
-import { ref } from "vue" 
-
+import { ref } from 'vue'
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -1,58 +1,107 @@
 <script setup lang="ts">
-import { ref,reactive,watch,watchEffect,onMounted,provide,readonly } from "vue";
+import { ref, reactive, watch, watchEffect, onMounted, provide, readonly } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+import request from '@/api/request'
+import * as cheerio from 'cheerio'
+import download from 'downloadjs'
 
-let a = ref({a:10})
-console.log(a);
+let a = ref({ a: 10 })
+console.log(a)
 
-let b = reactive({a:11})
-console.log(b);
+let b = reactive({ a: 11 })
+console.log(b)
 
 let data = reactive({
-  arr:[1,2,3],
-  str:'test',
+  arr: [1, 2, 3],
+  str: 'test'
 })
 
 function ck() {
   data.arr[1] = 0
 }
 
-watch(()=>data,(a,b)=>{
-  console.log(a);
-  console.log(b);
-},{deep:true})
+async function singlePage(index: number) {
+  // /files/article/image/2/2868/2868s.jpg 图片
+  let result = await request.get(`/novel/top/monthvisit/${index}.html`).then((res) => {
+    return res.data
+  })
+  const $ = cheerio.load(result)
+  let singelPageCount = $('#list_content').find('.book-li').length
+  console.log('这一页有', singelPageCount)
 
-console.log(a);
-console.log(b);
+  for (let i = 0; i < singelPageCount; i++) {
+    let url = $('.book-li .book-cover img').eq(i).attr('data-src')
+    const fileName = url?.match(/\/([^\/?#]+)\.\w+(?:\?.*)?(?:#.*)?$/)?.[1] ?? ''
+    const newUrl = '/novel' + url?.replace('https://www.bilinovel.com', '')
+    request({ url: newUrl, method: 'GET', responseType: 'blob' })
+      .then((res) => {
+        // 创建一个 Blob 对象
+        const blob = new Blob([res.data], { type: 'application/octet-stream' })
+        download(blob, `${fileName}.jpg`, 'application/octet-stream')
 
-watchEffect(()=>{
-  console.log('watchEffect执行了,发生了什么?'+data);
+        // 使用 URL.createObjectURL() 创建一个可下载链接
+        // const downloadUrl = URL.createObjectURL(blob)
+
+        // // 创建一个 <a> 元素并设置其 download 属性和 href 属性，然后模拟点击该元素
+        // const link = document.createElement('a')
+        // link.href = downloadUrl
+        // link.download = fileName
+        // link.click()
+
+        // 释放 URL.createObjectURL() 创建的对象
+        // URL.revokeObjectURL(downloadUrl)
+      })
+      .catch((error) => {
+        console.error('下载文件失败', error)
+      })
+  }
+}
+
+async function pages() {
+  let allPages = 3 //目前134页
+  for (let index = 1; index <= allPages; index++) {
+    await singlePage(index)
+  }
+}
+
+watch(
+  () => data,
+  (a, b) => {
+    console.log(a)
+    console.log(b)
+  },
+  { deep: true }
+)
+
+console.log(a)
+console.log(b)
+
+watchEffect(() => {
+  console.log('watchEffect执行了,发生了什么?' + data)
 })
 
-function happy(){
+function happy() {
   return 'happy cat'
 }
 
 let testProvide = reactive({
-  a:'youGotIt'
+  a: 'youGotIt'
 })
 
-onMounted(()=>{
-  console.log('你好');
-  provide('cool',testProvide)
-  console.log('provide已经传出');
-  
+onMounted(() => {
+  console.log('你好')
+  provide('cool', testProvide)
+  console.log('provide已经传出')
 })
 
 let read = readonly([9])
-console.log(read);
-
+console.log(read)
 </script>
-
 
 <template>
   <header>
+    <el-button type="primary" @click="pages">点我</el-button>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
@@ -76,7 +125,7 @@ console.log(read);
 </template>
 
 <style scoped>
-.boy{
+.boy {
   height: 30%;
 }
 
