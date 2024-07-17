@@ -1,12 +1,34 @@
 <script setup lang="ts">
+import { reactive } from 'vue'
 defineProps<{
   msg: string
-  }>()
+}>()
+
+const myObject = reactive({
+  title: 'How to do lists in Vue',
+  author: 'Jane Doe',
+  publishedAt: '2016-04-10'
+})
+
+const events = function (e: object) {
+  console.log(e)
+  console.log(myObject.title)
+  console.log((() => myObject.title)())
+}
+
+const control = function () {
+  console.log('你想打开控制台？')
+}
 </script>
 
 <template>
-  <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
+  <div @keydoup.shift="control" class="greetings">
+    <h1 @click="events($event)" class="green">{{ msg }}</h1>
+    <ul>
+      <li v-for="value in myObject">
+        {{ value }}
+      </li>
+    </ul>
     <h3>
       You’ve successfully created a project with
       <a href="https://vitejs.dev/" target="_blank" rel="noopener">Vite</a> +

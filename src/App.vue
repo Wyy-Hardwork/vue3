@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch, watchEffect, onMounted, provide, readonly } from 'vue'
+import { ref, reactive, watch, watchEffect, onMounted, provide, readonly, computed } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
 import request from '@/api/request'
@@ -8,6 +8,8 @@ import download from 'downloadjs'
 
 let a = ref({ a: 10 })
 console.log(a)
+
+let test = { a: ref(3) }
 
 let b = reactive({ a: 11 })
 console.log(b)
@@ -97,10 +99,13 @@ onMounted(() => {
 
 let read = readonly([9])
 console.log(read)
+
+const boy = reactive({ a: 2 })
 </script>
 
 <template>
   <header>
+    {{ test.a.value + 1 }}
     <el-button type="primary" @click="pages">点我</el-button>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
